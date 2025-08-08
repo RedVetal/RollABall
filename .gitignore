@@ -1,11 +1,15 @@
 # =======================
 # Unity core temporary/cache folders (НИКОГДА не пушим)
 # =======================
+
+!/docs/
+!/docs/*
+!*.unitypackage
+#[Bb]uild/
+#[Bb]uilds/
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
-#[Bb]uild/
-#[Bb]uilds/
 [Ll]ogs/
 [Uu]ser[Ss]ettings/
 
@@ -72,9 +76,6 @@ mono_crash.*
 *.aab
 *.app
 
-# Игнорируем билды в /Build/, /Builds/, но НЕ в /docs
-!/docs/
-!/docs/Build
 
 # =======================
 # Backup и Test файлы
@@ -82,8 +83,4 @@ mono_crash.*
 crashlytics-build.properties
 InitTestScene*.unity*
 
-# =======================
-# Разрешаем .unitypackage (резервные ассеты)
-# =======================
-# (по умолчанию GitHub их игнорит, убираем из игнора)
-#!*.unitypackage
+
