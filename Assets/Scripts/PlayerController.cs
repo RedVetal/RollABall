@@ -23,23 +23,16 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
-    // FixedUpdate is called once per fixed frame-rate frame.
-    private void FixedUpdate()
-    {
-        // Create a 3D movement vector using the X and Y inputs.
-        Vector3 movement = new Vector3(movementX, 0.0f, movementY); // Y становится Z
-
-        // Apply force to the Rigidbody to move the player.
-        rb.AddForce (movement * speed);
-    }
 
 
     // Input System по умолчанию для джойстиков/клавиш WASD возвращает Vector2 (только X и Y)
     // This function is called when a move input is detected.
-    private void OnMove(InputValue movementValue)
+    private void OnMove(InputValue movementValue)   // OnMove (Input System) Это событие, вызываемое при изменении ввода(даже между кадрами).
+                                                    // Оно просто сохраняет последние данные ввода в movementX/Y.
+
     {
         // Convert the input value into a Vector2 for movement.
         Vector2 movementVector = movementValue.Get<Vector2>();
@@ -47,6 +40,26 @@ public class PlayerController : MonoBehaviour
         // Store the X and Y components of the movement.
         movementX = movementVector.x;
         movementY = movementVector.y;
+    }
+
+    // FixedUpdate: Берёт сохранённые значения и применяет силу к Rigidbody.
+    // Это гарантирует, что физика будет обрабатывать движение в своём темпе.
+    // FixedUpdate is called once per fixed frame-rate frame.
+    private void FixedUpdate()  // Используйте FixedUpdate только для физики (Rigidbody).
+    {
+        // Create a 3D movement vector using the X and Y inputs.
+        Vector3 movement = new Vector3(movementX, 0.0f, movementY); // Y становится Z
+
+        // Apply force to the Rigidbody to move the player.
+        rb.AddForce(movement * speed);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("PickUp"))
+        {
+            other.gameObject.SetActive(false);
+        }
     }
 }
 
