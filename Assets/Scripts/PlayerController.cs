@@ -1,8 +1,16 @@
 using UnityEngine;
 using UnityEngine.InputSystem;  // Один код для клавиатуры, геймпада, мобильных касаний.
+using TMPro;
 
 public class PlayerController : MonoBehaviour
 {
+    // Speed at which the player moves.
+    public float speed = 0;
+    // UI text component to display count of "PickUp" objects collected.
+    public TextMeshProUGUI countText;
+    // UI object to display winning text.
+    public GameObject winTextObject;
+
     // Rigidbody of the player.
     private Rigidbody rb;
 
@@ -10,20 +18,39 @@ public class PlayerController : MonoBehaviour
     private float movementX;
     private float movementY;
 
-    // Speed at which the player moves.
-    public float speed = 0;
+    // Variable to keep track of collected "PickUp" objects.
+    private int count;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         // Get and store the Rigidbody component attached to the player.
         rb = GetComponent<Rigidbody>();
+        // Initialize count to zero.
+        count = 0;
+        // Update the count display.
+        SetCountText();
+        // Initially set the win text to be inactive.
+        winTextObject.SetActive(false);  
     }
 
     // Update is called once per frame
     void Update()
     {
 
+    }
+
+    // Function to update the displayed count of "PickUp" objects collected.
+    void SetCountText()
+    {
+        // Update the count text with the current count.
+        countText.text = "Count: " + count.ToString();
+        // Check if the count has reached or exceeded the win condition.
+        if (count > 9)
+        {
+            // Display the win text.
+            winTextObject.SetActive(true);
+        }
     }
 
 
@@ -56,9 +83,15 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        // Check if the object the player collided with has the "PickUp" tag.
         if (other.gameObject.CompareTag("PickUp"))
         {
+            // Deactivate the collided object (making it disappear).
             other.gameObject.SetActive(false);
+            // Increment the count of "PickUp" objects collected.
+            count++;
+            // Update the count display.
+            SetCountText();
         }
     }
 }
