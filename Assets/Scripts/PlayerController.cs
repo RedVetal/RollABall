@@ -46,7 +46,7 @@ public class PlayerController : MonoBehaviour
         // Update the count text with the current count.
         countText.text = "Count: " + count.ToString();
         // Check if the count has reached or exceeded the win condition.
-        if (count > 9)
+        if (count > 10)
         {
             // Display the win text.
             winTextObject.SetActive(true);
