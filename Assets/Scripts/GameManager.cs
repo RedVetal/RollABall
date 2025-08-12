@@ -7,18 +7,18 @@ public class GameManager : MonoBehaviour
 
     [Header("Game Settings")]
     public int totalPickups = 10;
+    private string currentScene;
 
-    private void Awake() => InitializeSingleton();
-
-    private void InitializeSingleton()
+    private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
             SceneManager.sceneLoaded += OnSceneLoaded;
+            currentScene = SceneManager.GetActiveScene().name;
         }
-        else if (Instance != this)
+        else
         {
             Destroy(gameObject);
         }
@@ -26,22 +26,22 @@ public class GameManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        Debug.Log($"Загружена сцена: {scene.name}");
+        currentScene = scene.name;
+        Time.timeScale = 1f; // Сброс паузы при загрузке сцены
     }
 
     public void LoadScene(string sceneName)
     {
-        if (string.IsNullOrEmpty(sceneName))
-        {
-            Debug.LogError("Пустое имя сцены!");
-            return;
-        }
+        if (currentScene == sceneName) return;
 
         SceneManager.LoadScene(sceneName);
     }
 
+    public void TogglePause(bool pause) => Time.timeScale = pause ? 0f : 1f;
+
     public void QuitGame()
     {
+        // Сохраняем данные если нужно
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else

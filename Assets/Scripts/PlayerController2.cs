@@ -5,8 +5,13 @@ using TMPro;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerController2 : MonoBehaviour
 {
-    [Header("Movement Settings")]
-    public float speed = 5f;
+    [Header("Movement")]
+    [SerializeField] private float speed = 5f;
+
+    // Константы
+    private const string EnemyTag = "Enemy";
+    private const string PickupTag = "Pickup";
+    private const string CountTextName = "CountText";
 
     // Компоненты
     private Rigidbody rb;
@@ -15,51 +20,43 @@ public class PlayerController2 : MonoBehaviour
     private UIManager uiManager;
 
     // Игровые переменные
-    private float movementX, movementY;
     private int count;
     private bool isGameOver;
-
-    // Константы
-    private const string CountTextName = "CountText";
-    private const string EnemyTag = "Enemy";
-    private const string PickupTag = "Pickup";
+    private float movementX, movementY;
 
     private void Awake()
     {
-        InitializeComponents();
-        ValidateComponents();
-    }
-
-    private void InitializeComponents()
-    {
+        // Основные компоненты
         rb = GetComponent<Rigidbody>();
         enemy = GameObject.FindWithTag(EnemyTag);
-        uiManager = FindAnyObjectByType<UIManager>(); // Исправлено на современный метод
+        uiManager = FindAnyObjectByType<UIManager>();
 
-        // Поиск CountText через UIManager
+        // Получаем countText через UIManager, если он найден
         if (uiManager != null)
         {
-            countText = uiManager.GetCountText(); // Добавьте этот метод в UIManager
+            countText = uiManager.GetCountTextComponent();
         }
 
-        // Резервный поиск
+        // Резервный поиск, если через UIManager не найден
         if (countText == null)
         {
             GameObject textObj = GameObject.Find(CountTextName);
-            if (textObj != null) countText = textObj.GetComponent<TextMeshProUGUI>();
+            if (textObj != null)
+                countText = textObj.GetComponent<TextMeshProUGUI>();
         }
-    }
 
-    private void ValidateComponents()
-    {
+        // Валидация
         if (countText == null)
-            Debug.LogError($"CountText ({CountTextName}) не найден!", this);
+            Debug.LogWarning($"[PlayerController2] Не найден TextMeshProUGUI для счётчика {CountTextName}.", this);
 
         if (uiManager == null)
-            Debug.LogError("UIManager не найден в сцене!", this);
+            Debug.LogWarning("[PlayerController2] UIManager не найден в сцене!", this);
     }
 
-    private void Start() => ResetGameState();
+    private void Start()
+    {
+        ResetGameState();
+    }
 
     private void ResetGameState()
     {
@@ -79,7 +76,10 @@ public class PlayerController2 : MonoBehaviour
     private void FixedUpdate()
     {
         if (!isGameOver)
-            rb.AddForce(new Vector3(movementX, 0f, movementY) * speed);
+        {
+            Vector3 movement = new Vector3(movementX, 0f, movementY);
+            rb.AddForce(movement * speed);
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -95,13 +95,24 @@ public class PlayerController2 : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         if (!isGameOver && collision.gameObject.CompareTag(EnemyTag))
+        {
             EndGame(false);
+        }
     }
 
     private void UpdateCountText()
     {
-        if (countText != null && GameManager.Instance != null)
-            countText.text = $"Count: {count}/{GameManager.Instance.totalPickups}";
+        if (countText == null) return;
+
+        if (uiManager != null && GameManager.Instance != null)
+        {
+            uiManager.UpdateScore(count, GameManager.Instance.totalPickups);
+        }
+        else
+        {
+            // Фоллбэк: меняем текст вручную
+            countText.text = $"Count: {count}";
+        }
     }
 
     private void EndGame(bool isWin)

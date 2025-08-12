@@ -2191,9 +2191,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1410597710}
+      - m_Target: {fileID: 1410597712}
         m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
-        m_MethodName: ExitToMenu
+        m_MethodName: ReturnToMenu
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2616,7 +2616,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1410597711}
-  - component: {fileID: 1410597710}
+  - component: {fileID: 1410597712}
   m_Layer: 0
   m_Name: UIManager
   m_TagString: Untagged
@@ -2624,22 +2624,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1410597710
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1410597709}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 722e736d53488404d8b2325296783eab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  exitButton: {fileID: 1163185282}
-  winPanel: {fileID: 602462274}
-  losePanel: {fileID: 1400283776}
-  countText: {fileID: 446310947}
 --- !u!4 &1410597711
 Transform:
   m_ObjectHideFlags: 0
@@ -2659,6 +2643,22 @@ Transform:
   - {fileID: 446310946}
   m_Father: {fileID: 1193942102}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1410597712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1410597709}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 722e736d53488404d8b2325296783eab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  exitButton: {fileID: 1163185282}
+  winPanel: {fileID: 602462274}
+  losePanel: {fileID: 1400283776}
+  countText: {fileID: 446310947}
 --- !u!4 &1413190805 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2659761137849236843, guid: 4e44d429e605136448dc91b86df7b615, type: 3}

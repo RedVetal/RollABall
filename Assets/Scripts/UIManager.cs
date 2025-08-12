@@ -10,39 +10,37 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject losePanel;
     [SerializeField] private TextMeshProUGUI countText;
 
-    public TextMeshProUGUI GetCountText() => countText; // Ќовый метод
-
     private void Awake()
     {
-        InitializeUI();
-        ValidateReferences();
+        // ѕроверка и инициализаци€
+        if (exitButton == null)
+            Debug.LogError("ExitButton не назначен в инспекторе!", this);
+        else
+            exitButton.onClick.AddListener(ReturnToMenu);
+
+        if (winPanel != null) winPanel.SetActive(false);
+        if (losePanel != null) losePanel.SetActive(false);
     }
 
-    private void InitializeUI()
+    public void UpdateScore(int current, int total)
     {
-        winPanel?.SetActive(false);
-        losePanel?.SetActive(false);
-
-        if (exitButton != null)
-        {
-            exitButton.onClick.RemoveAllListeners();
-            exitButton.onClick.AddListener(ExitToMenu);
-        }
-    }
-
-    private void ValidateReferences()
-    {
-        Debug.Assert(exitButton != null, "ExitButton не назначен!", this);
-        Debug.Assert(winPanel != null, "WinPanel не найден!", this);
-        Debug.Assert(losePanel != null, "LosePanel не найден!", this);
-        Debug.Assert(countText != null, "CountText не найден!", this);
+        if (countText != null)
+            countText.text = $"Count: {current}/{total}";
     }
 
     public void ShowEndGamePanel(bool isWin)
     {
         if (winPanel != null) winPanel.SetActive(isWin);
         if (losePanel != null) losePanel.SetActive(!isWin);
+        GameManager.Instance?.TogglePause(true);
     }
 
-    private void ExitToMenu() => GameManager.Instance?.LoadScene("Menu");
+    public void ReturnToMenu()
+    {
+        GameManager.Instance?.TogglePause(false);
+        GameManager.Instance?.LoadScene("Main");
+    }
+
+    // ƒобавленный метод дл€ доступа к countText
+    public TextMeshProUGUI GetCountTextComponent() => countText;
 }
