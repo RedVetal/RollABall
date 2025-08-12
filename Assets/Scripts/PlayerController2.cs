@@ -1,37 +1,76 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
-using UnityEngine.SceneManagement;
 
+[RequireComponent(typeof(Rigidbody))]
 public class PlayerController2 : MonoBehaviour
 {
-    [Header("Movement")]
-    public float speed = 5;
+    [Header("Movement Settings")]
+    public float speed = 5f;
 
-    [Header("UI References")]
-    public TextMeshProUGUI countText;
-    public GameObject winPanel;
-    public GameObject losePanel;
-
+    // Компоненты
     private Rigidbody rb;
-    private float movementX;
-    private float movementY;
+    private TextMeshProUGUI countText;
+    private GameObject enemy;
+    private UIManager uiManager;
+
+    // Игровые переменные
+    private float movementX, movementY;
     private int count;
+    private bool isGameOver;
 
-    private bool isGameOver = false;
+    // Константы
+    private const string CountTextName = "CountText";
+    private const string EnemyTag = "Enemy";
+    private const string PickupTag = "Pickup";
 
-    void Start()
+    private void Awake()
+    {
+        InitializeComponents();
+        ValidateComponents();
+    }
+
+    private void InitializeComponents()
     {
         rb = GetComponent<Rigidbody>();
-        count = 0;
-        UpdateCountText();
+        enemy = GameObject.FindWithTag(EnemyTag);
+        uiManager = FindAnyObjectByType<UIManager>(); // Исправлено на современный метод
 
-        winPanel.SetActive(false);
-        losePanel.SetActive(false);
+        // Поиск CountText через UIManager
+        if (uiManager != null)
+        {
+            countText = uiManager.GetCountText(); // Добавьте этот метод в UIManager
+        }
+
+        // Резервный поиск
+        if (countText == null)
+        {
+            GameObject textObj = GameObject.Find(CountTextName);
+            if (textObj != null) countText = textObj.GetComponent<TextMeshProUGUI>();
+        }
+    }
+
+    private void ValidateComponents()
+    {
+        if (countText == null)
+            Debug.LogError($"CountText ({CountTextName}) не найден!", this);
+
+        if (uiManager == null)
+            Debug.LogError("UIManager не найден в сцене!", this);
+    }
+
+    private void Start() => ResetGameState();
+
+    private void ResetGameState()
+    {
+        count = 0;
+        isGameOver = false;
+        UpdateCountText();
     }
 
     private void OnMove(InputValue movementValue)
     {
+        if (isGameOver) return;
         Vector2 movementVector = movementValue.Get<Vector2>();
         movementX = movementVector.x;
         movementY = movementVector.y;
@@ -39,15 +78,13 @@ public class PlayerController2 : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (isGameOver) return;
-
-        Vector3 movement = new Vector3(movementX, 0.0f, movementY);
-        rb.AddForce(movement * speed);
+        if (!isGameOver)
+            rb.AddForce(new Vector3(movementX, 0f, movementY) * speed);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("PickUp"))
+        if (!isGameOver && other.CompareTag(PickupTag))
         {
             other.gameObject.SetActive(false);
             count++;
@@ -57,47 +94,24 @@ public class PlayerController2 : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Enemy"))
-        {
-            LoseGame();
-        }
+        if (!isGameOver && collision.gameObject.CompareTag(EnemyTag))
+            EndGame(false);
     }
 
     private void UpdateCountText()
     {
-        countText.text = $"Count: {count}/{GameManager.Instance.totalPickups}";
-
-        if (count >= GameManager.Instance.totalPickups)
-        {
-            WinGame();
-        }
+        if (countText != null && GameManager.Instance != null)
+            countText.text = $"Count: {count}/{GameManager.Instance.totalPickups}";
     }
 
-    private void WinGame()
+    private void EndGame(bool isWin)
     {
         isGameOver = true;
         rb.linearVelocity = Vector3.zero;
-        winPanel.SetActive(true);
-        Destroy(GameObject.FindGameObjectWithTag("Enemy"));
-    }
 
-    private void LoseGame()
-    {
-        isGameOver = true;
-        rb.linearVelocity = Vector3.zero;
-        losePanel.SetActive(true);
-    }
+        if (isWin && enemy != null)
+            Destroy(enemy);
 
-    // ������ "�����" �� �������� UI
-    //public void ExitToMenu()
-    //{
-    //    if (GameManager.Instance != null)
-    //    {
-    //        GameManager.Instance.LoadMenu();
-    //    }
-    //    else
-    //    {
-    //        SceneManager.LoadScene("Menu");
-    //    }
-    //}
+        uiManager?.ShowEndGamePanel(isWin);
+    }
 }

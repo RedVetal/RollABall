@@ -8,35 +8,37 @@ public class GameManager : MonoBehaviour
     [Header("Game Settings")]
     public int totalPickups = 10;
 
-    private void Awake()
+    private void Awake() => InitializeSingleton();
+
+    private void InitializeSingleton()
     {
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // Не уничтожаем при смене сцен
+            DontDestroyOnLoad(gameObject);
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
-        else
+        else if (Instance != this)
         {
             Destroy(gameObject);
         }
     }
 
-    public void LoadMenu()
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        SceneManager.LoadScene("Menu");
+        Debug.Log($"Загружена сцена: {scene.name}");
     }
 
-    public void LoadGame()
+    public void LoadScene(string sceneName)
     {
-        SceneManager.LoadScene("Minigame");
-    }
+        if (string.IsNullOrEmpty(sceneName))
+        {
+            Debug.LogError("Пустое имя сцены!");
+            return;
+        }
 
-    
-    public void ExitToMenu()
-    {
-        SceneManager.LoadScene("Menu");
+        SceneManager.LoadScene(sceneName);
     }
-
 
     public void QuitGame()
     {
@@ -45,5 +47,13 @@ public class GameManager : MonoBehaviour
 #else
         Application.Quit();
 #endif
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
     }
 }

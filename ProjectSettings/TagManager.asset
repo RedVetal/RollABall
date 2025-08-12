@@ -4,8 +4,8 @@
 TagManager:
   serializedVersion: 3
   tags:
-  - PickUp
   - Enemy
+  - Pickup
   layers:
   - Default
   - TransparentFX
